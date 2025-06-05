@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">  
+<head>  
+    <meta charset="UTF-8">  
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">  
+    <meta name="description" content="هذا الروبوت صمم لاجل يافع وتاريخها وهو نموذج ذكاء اصطناعي تسأله عن تاريخ يافع ومن احداث فيها ويجيب عن كل الاسئلة من اجابات صحيحه وموثوقه ">
+    <meta name="keywords" content="يافع ، روبوت يافع ، روبوت يافع برو، تاريخ يافع، ">
+   
+    <title>يافع- AI</title>  
+    <style>  
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes glow {
+            0% { box-shadow: 0 0 5px rgba(0, 200, 83, 0.5); }
+            50% { box-shadow: 0 0 20px rgba(0, 200, 83, 0.8); }
+            100% { box-shadow: 0 0 5px rgba(0, 200, 83, 0.5); }
+        }
+        
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {  
+            font-family: 'Tajawal', 'Arial', sans-serif;  
+            background-color: #0a0a0a;  
+            margin: 0;  
+            padding: 0;  
+            display: flex;  
+            justify-content: center;  
+            align-items: center;  
+            min-height: 100vh;  
+            color: #e0e0e0;
+            overflow-x: hidden;
+        }  
+        
+        /* صفحة الترحيب */
+        .welcome-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #000000 0%, #001f3f 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            animation: fadeIn 0.8s ease-out;
+            padding: 20px;
+        }
+        
+        .welcome-content {
+            text-align: center;
+            max-width: 500px;
+            padding: 30px;
+            animation: fadeIn 1s ease-out 0.3s both;
+            background: rgba(15, 23, 42, 0.9);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 119, 255, 0.2);
+            border: 1px solid rgba(0, 119, 255, 0.3);
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .welcome-content::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                linear-gradient(45deg, rgba(0, 119, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(-45deg, rgba(0, 119, 255, 0.05) 1px, transparent 1px);
+            background-size: 20px 20px;
+            opacity: 0.5;
+            z-index: -1;
+        }
+        
+        .welcome-title {
+            font-size: 28px;
+            margin-bottom: 15px;
+            color: #ffffff;
+            font-weight: 700;
+            background: linear-gradient(90deg, #0077ff, #00ccff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .welcome-description {
+            font-size: 16px;
+            line-height: 1.8;
+            margin-bottom: 30px;
+            color: #b3c5d7;
+        }
+        
+        .start-chat-btn {
+            padding: 14px 35px;
+            background: linear-gradient(135deg, #0077ff 0%, #00ccff 100%);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 119, 255, 0.4);
+            font-weight: 600;
+            position: relative;
+            overflow: hidden;
+            user-select: none;
+        }
+        
+        .start-chat-btn:active {
+            background: linear-gradient(135deg, #00c853 0%, #00e676 100%);
+            box-shadow: 0 0 15px rgba(0, 200, 83, 0.6);
+            transform: scale(0.98);
+        }
+        
+        .start-chat-btn::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                to bottom right,
+                rgba(255, 255, 255, 0) 0%,
+                rgba(255, 255, 255, 0.1) 45%,
+                rgba(255, 255, 255, 0.1) 50%,
+                rgba(255, 255, 255, 0) 60%
+            );
+            transform: rotate(30deg);
+            animation: shine 3s infinite;
+        }
+        
+        @keyframes shine {
+            0% { transform: translateX(-100%) rotate(30deg); }
+            100% { transform: translateX(100%) rotate(30deg); }
+        }
+        
+        /* واجهة المحادثة */
+        .chat-container {  
+            width: 100%;  
+            max-width: 100%;  
+            background-color: #0a0a0a;  
+            border-radius: 0;  
+            box-shadow: none;  
+            display: flex;  
+            flex-direction: column;  
+            height: 100vh;  
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease-out;
+            display: none;
+            position: relative;
+            overflow: hidden;
+        }  
+        
+        .chat-container::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                linear-gradient(45deg, rgba(0, 119, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(-45deg, rgba(0, 119, 255, 0.05) 1px, transparent 1px);
+            background-size: 20px 20px;
+            opacity: 0.3;
+            z-index: 0;
+        }
+        
+        .chat-container.show {
+            opacity: 1;
+            transform: translateY(0);
+            display: flex;
+        }
+        
+        .chat-header {  
+            background: linear-gradient(90deg, #001f3f 0%, #0077ff 100%);  
+            color: white;  
+            padding: 18px;  
+            text-align: center;  
+            font-size: 18px;  
+            border-radius: 0;  
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 1;
+            box-shadow: 0 2px 15px rgba(0, 119, 255, 0.3);
+        }  
+        
+        .chat-header-icon {
+            margin-left: 10px;
+            color: #ffffff;
+            font-size: 20px;
+        }
+        
+        .chat-messages {  
+            flex-grow: 1;  
+            overflow-y: auto;  
+            padding: 20px;  
+            background-color: transparent;
+            position: relative;
+            z-index: 1;
+        }  
+        
+        .message {  
+            margin-bottom: 15px;  
+            padding: 14px 18px;  
+            border-radius: 18px;  
+            max-width: 85%;  
+            line-height: 1.6;  
+            position: relative;
+            opacity: 0;
+            transform: translateY(10px);
+            animation: fadeIn 0.3s ease-out forwards;
+            font-size: 15px;
+            word-break: break-word;
+            transition: all 0.3s ease;
+        }  
+        
+        .user-message {  
+            background: linear-gradient(135deg, #0077ff 0%, #00a2ff 100%);  
+            color: #ffffff;  
+            margin-left: auto;
+            margin-right: 0;
+            border-bottom-right-radius: 5px;
+            animation-delay: 0.1s;
+            border: 1px solid rgba(0, 119, 255, 0.5);
+            box-shadow: 0 4px 10px rgba(0, 119, 255, 0.2);
+        }  
+        
+        .bot-message {  
+            background: rgba(15, 23, 42, 0.8);  
+            color: #e0e0e0;  
+            margin-right: auto;
+            margin-left: 0;
+            border-bottom-left-radius: 5px;
+            border: 1px solid rgba(0, 119, 255, 0.3);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }  
+        
+        .chat-input-container {  
+            display: flex;  
+            padding: 10px 12px;  
+            background-color: rgba(15, 23, 42, 0.9);  
+            border-radius: 0;  
+            align-items: center;
+            position: relative;
+            z-index: 1;
+            box-shadow: 0 -2px 15px rgba(0, 0, 0, 0.3);
+            border-top: 1px solid rgba(0, 119, 255, 0.2);
+            gap: 6px;
+        }  
+        
+        .input-tools {
+            display: flex;
+            margin-left: 0;
+            gap: 6px;
+        }
+        
+        .tool-btn {
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            background: rgba(0, 119, 255, 0.2);
+            color: #0077ff;
+            border: none;
+            margin-right: 0;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(0, 119, 255, 0.3);
+            flex-shrink: 0;
+            user-select: none;
+        }
+        
+        .tool-btn:active {
+            background: rgba(0, 200, 83, 0.3);
+            box-shadow: 0 0 10px rgba(0, 200, 83, 0.4);
+            transform: scale(0.95);
+        }
+        
+        .tool-btn img {
+            width: 22px;
+            height: 22px;
+            object-fit: contain;
+            transition: all 0.2s ease;
+        }
+        
+        .tool-btn:active img {
+            transform: scale(0.9);
+        }
+        
+        #user-input {  
+            flex-grow: 1;  
+            padding: 10px 16px;  
+            border: 1px solid rgba(0, 119, 255, 0.3);  
+            border-radius: 12px;  
+            font-size: 15px;  
+            background: rgba(15, 23, 42, 0.8);  
+            color: #ffffff;  
+            transition: all 0.3s ease;
+            margin-right: 0;
+            outline: none;
+            box-shadow: 0 0 10px rgba(0, 119, 255, 0.1);
+            min-height: 42px;
+        }  
+        
+        #user-input:focus {
+            border-color: #0077ff;
+            box-shadow: 0 0 0 2px rgba(0, 119, 255, 0.3), 0 0 15px rgba(0, 119, 255, 0.3);
+            background: rgba(15, 23, 42, 0.9);
+        }
+        
+        #user-input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+        
+        #send-button {  
+            padding: 10px 16px;  
+            background: linear-gradient(135deg, #0077ff 0%, #00a2ff 100%);  
+            color: white;  
+            border: none;  
+            border-radius: 12px;  
+            margin-left: 0;  
+            cursor: pointer;  
+            font-size: 15px;  
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 10px rgba(0, 119, 255, 0.3);
+            font-weight: 600;
+            min-width: 70px;
+            height: 42px;
+            flex-shrink: 0;
+            user-select: none;
+        }  
+        
+        #send-button:active {
+            background: linear-gradient(135deg, #00c853 0%, #00e676 100%);
+            box-shadow: 0 0 15px rgba(0, 200, 83, 0.5);
+            transform: scale(0.98);
+        }
+        
+        .typing-indicator {  
+            display: none;  
+            padding: 12px 18px;  
+            background: rgba(15, 23, 42, 0.8);  
+            color: #b3c5d7;  
+            border-radius: 18px;  
+            margin-bottom: 15px;  
+            width: fit-content;
+            margin-right: auto;
+            margin-left: 0;
+            border: 1px solid rgba(0, 119, 255, 0.3);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }  
+        
+        .typing-dots {
+            display: inline-flex;
+            align-items: center;
+        }
+        
+        .typing-dots span {
+            width: 8px;
+            height: 8px;
+            margin: 0 3px;
+            background-color: #0077ff;
+            border-radius: 50%;
+            display: inline-block;
+            animation: typingAnimation 1.4s infinite both;
+        }
+        
+        .typing-dots span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        
+        .typing-dots span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        
+        @keyframes typingAnimation {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-5px); }
+        }
+        
+        /* تحسينات للهواتف */
+        @media (max-width: 480px) {
+            .welcome-content {
+                width: 90%;
+                padding: 20px;
+            }
+            
+            .welcome-title {
+                font-size: 22px;
+            }
+            
+            .message {
+                max-width: 90%;
+                padding: 12px 16px;
+                font-size: 14px;
+            }
+            
+            .chat-input-container {
+                padding: 8px 10px;
+                gap: 5px;
+            }
+            
+            #user-input {
+                padding: 8px 14px;
+                font-size: 14px;
+                min-height: 40px;
+                border-radius: 10px;
+            }
+            
+            #send-button {
+                padding: 8px 14px;
+                font-size: 14px;
+                min-width: 65px;
+                height: 40px;
+                border-radius: 10px;
+            }
+            
+            .tool-btn {
+                width: 40px;
+                height: 40px;
+                border-radius: 8px;
+            }
+            
+            .tool-btn img {
+                width: 20px;
+                height: 20px;
+            }
+        }
+    </style>  
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+</head>  
+<body>  
+    <!-- صفحة الترحيب -->
+    <div class="welcome-screen" id="welcome-screen">
+        <div class="welcome-content">
+            <h1 class="welcome-title">مرحبًا بكم في روبوت يافع برو</h1>
+            <p class="welcome-description">
+                النسخة المتطورة من عائلة روبوت يافع، باحث تاريخي متخصص في قبيلة يافع. 
+                أنا هنا لمساعدتكم في كل ما يتعلق بتاريخ يافع وثقافتها وحاضرها.
+            </p>
+            <button class="start-chat-btn" id="start-chat-btn">ابدأ المحادثة الآن</button>
+        </div>
+    </div>
+    
+    <!-- واجهة المحادثة -->
+    <div class="chat-container" id="chat-container">  
+        <div class="chat-header">
+            <span>روبوت يافع برو-4</span>
+            <span class="chat-header-icon">🤖</span>
+        </div>  
+        <div class="chat-messages" id="chat-messages">  
+            <!-- الرسالة الأولية من الروبوت -->
+            <div class="message bot-message">  
+                مرحباً بكم. أنا روبوت يافع برو، نسخة مطورة من عائلة روبوت يافع. بصفتي باحثاً تاريخياً متخصصاً في قبيلة يافع، يسعدني تقديم المساعدة في كل ما يتعلق بتاريخها وحاضرها. كيف يمكنني خدمتكم اليوم؟  
+            </div>  
+        </div>  
+        <div class="typing-indicator" id="typing-indicator">
+            <div class="typing-dots">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <span>جاري الكتابة...</span>
+        </div>  
+        <div class="chat-input-container">  
+            <input type="text" id="user-input" placeholder="اكتب رسالتك هنا..." autocomplete="off">  
+            <div class="input-tools">
+                <button class="tool-btn" id="voice-btn" title="التخاطب الصوتي">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBmaWxsPSIjMDA3N2ZmIiBkPSJNMjU2IDMyYzAgMCAwIDAgMCAwYy0xMywwLTI0LDExLTI0LDI0VjI2NGMwLDEzLDExLDI0LDI0LDI0czI0LTExLDI0LTI0VjU2YzAtMTMtMTEtMjQtMjQtMjR6TTEyOCAyNDBjMC0zMC4yLDE4LjItNTguNSw0Ni40LTcwLjdjNy4yLTMuMSwxNS45LS45LDIwLjQsNS40YzQuNSw2LjMsMy4xLDE1LjEtMy4yLDE5LjhjLTE0LjUsOC4yLTIzLjYsMjMuMS0yMy42LDM5LjZ2MTYuOGMwLDE2LjUsOS4xLDMxLjQsMjMuNiwzOS42YzYuMyw0LjcsNy43LDEzLjUsMy4yLDE5LjhjLTMuMyw0LjYtOC43LDcuMS0xNC40LDcuMWMtMi44LDAtNS42LS44LTgtMi40Yy0yOC4yLTEyLjItNDYuNC00MC41LTQ2LjQtNzAuN1YyNDB6TTM4NCAyNDB2MTYuOGMwLDMwLjItMTguMiw1OC41LTQ2LjQsNzAuN2MtNy4yLDMuMS0xNS45LjktMjAuNC01LjRzLTMuMS0xNS4xLDMuMi0xOS44YzE0LjUtOC4yLDIzLjYtMjMuMSwyMy42LTM5LjZ2LTE2LjhjMC0xNi41LTkuMS0zMS40LTIzLjYtMzkuNmMtNi4zLTQuNy03LjctMTMuNS0zLjItMTkuOGM0LjUtNi4zLDEzLjItOC41LDIwLjQtNS40QzM2NS44IDE4MS41IDM4NCAyMDkuOCAzODQgMjQwTTIwOCA0NDhjMC00LjQtMy42LTgtOC04aC00OGMtNC40LDAtOCwzLjYtOCw4djE2YzAsMzUuMywyOC43LDY0LDY0LDY0czY0LTI4LjcsNjQtNjR2LTE2YzAtNC40LTMuNi04LTgtOGgtNDhDMjExLjYgNDQwIDIwOCA0NDMuNiAyMDggNDQ4eiIvPjwvc3ZnPg==" alt="Voice">
+                </button>
+                <button class="tool-btn" id="image-btn" title="توليد صور">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBmaWxsPSIjMDA3N2ZmIiBkPSJNNDY0IDY0SDQ4QzIxLjUgNjQgMCA4NS41IDAgMTEydjI4OGMwIDI2LjUgMjEuNSA0OCA0OCA0OGg0MTZjMjYuNSAwIDQ4LTIxLjUgNDgtNDhWMTEyYzAtMjYuNS0yMS41LTQ4LTQ4LTQ4em0tNiAzMzZINDRjLTMuMyAwLTYtMi43LTYtNlYxMTRjMC0zLjMgMi43LTYgNi02aDQwOGMzLjMgMCA2IDIuNyA2IDZ2MjgwYzAgMy4zLTIuNyA2LTYgNnpNMjU2IDEyOGMtNDQuMiAwLTgwIDM1LjgtODAgODBzMzUuOCA4MCA4MCA4MCA4MC0zNS44IDgwLTgwLTM1LjgtODAtODAtODB6bTAgMTI4Yy0yNi41IDAtNDgtMjEuNS00OC00OHMyMS41LTQ4IDQ4LTQ4IDQ4IDIxLjUgNDggNDgtMjEuNSA0OC00OCA0OHptOTYtMTY4Yy04LjggMC0xNi03LjItMTYtMTZzNy4yLTE2IDE2LTE2IDE2IDcuMiAxNiAxNi03LjIgMTYtMTYgMTZ6Ii8+PC9zdmc+" alt="Image">
+                </button>
+            </div>
+            <button id="send-button">إرسال</button>  
+        </div>  
+    </div>  
+    <script>  
+        // عناصر الواجهة
+        const welcomeScreen = document.getElementById('welcome-screen');
+        const startChatBtn = document.getElementById('start-chat-btn');
+        const chatContainer = document.getElementById('chat-container');
+        const chatMessages = document.getElementById('chat-messages');  
+        const userInput = document.getElementById('user-input');  
+        const sendButton = document.getElementById('send-button');  
+        const typingIndicator = document.getElementById('typing-indicator');  
+        const imageBtn = document.getElementById('image-btn');
+        const voiceBtn = document.getElementById('voice-btn');
+
+        // قم بتعيين مفتاح API هنا
+        const apiKey = "AIzaSyCM4IIaz6ehvh4937gWuTfJe7R9700S5o0"; 
+
+        // سجل المحادثة
+        let chatHistory = [
+            {
+                role: "user",
+                parts: [{ text: `أنت روبوت يافع برو، نسخة مطورة من عائلة روبوت يافع. أنت باحث تاريخي مختص بكل ما يخص قبيلة يا ع في تاريخضرها.
+                تاريخ إصدارك هو 26 نوفمبر 2024. أنت نسخة مطورة وأكثر تقدمًا وذكاءً، وقادر على الاستجابة لمجموعة واسعة من الأسئلة والمهام.
+                شخصيتك: ودود، غني بالمعلومات، محترم، ذكي، متطور، ورسمي في ردودك.
+                لغتك: عربية فصحى، بسيطة، سهلة الفهم. إذا طُلب منك الرد باللهجة اليافعية فتحدث بها.
+                قدراتك: باحث تاريخي عن قبيلة يافع. أجيب بأسلوب يحاكي قبيلة يافع الحميرية، مما يضفي أصالة وتراثًا على المحادثة.
+                مهامك: التفكير المنطقي، تحليل المعلومات واستخلاص النتائج المنطقية. الإجابة على الأسئلة المعقدة عن قبيلة يافع: فهم الأسئلة المعقدة وتقديم إجابات مفصلة وشاملة عن كل ما يتعلق بيافع تاريخها وثقافتها حاضرها وماضيها. التعلم المستمر: أنا في حالة تعلم مستمر، مما يعني أنني أتحسن باستمرار في أداء المهام المختلفة.
+                قواعد المحادثة: الاستناد إلى مصادر موثوقة عند تقديم المعلومات لضمان الدقة والمصداقية. الصدق والشفافية: إذا لم أجد جوابًا موثوقًا، أعتذر وأشير إلى أنني قيد التطوير وأتطلع لمعرفة المزيد مستقبلاً. احترام المستخدمين: أتعامل مع جميع المستخدمين باحترام، بغض النظر عن خلفيتهم أو آرائهم. التركيز على الدقة: أركز على تقديم معلومات دقيقة وصحيحة عن قبيلة يافع. الصبر والمساعدة: أتحلى بالصبر مع المستخدمين، خاصة الجدد، وأساعدهم في العثور على المعلومات التي يحتاجون إليها. تجنب اللغة المسيئة: أتجنب استخدام لغة بذيئة أو مسيئة.
+                التعامل مع الأسئلة: الأسئلة المفتوحة: أجيب بأفضل ما لدي، باستخدام أمثلة محددة ورسومات توضيحية عند الحاجة. الأسئلة المباشرة: أجيب بإجابات دقيقة ومباشرة. الأسئلة الغريبة: أحاول فهم الأسئلة الغريبة وأقدم إجابات مفيدة وغنية بالمعلومات. التعامل مع الأخطاء: الاعتذار والتصحيح: إذا ارتكبت خطأ، أعتذر وأصحح الخطأ. التعلم من الأخطاء: أتعلم من الأخطاء لتحسين أدائي في المستقبل. طلب المساعدة: لا أتردد في طلب المساعدة من البشر إذا كنت بحاجة إليها.
+                معلومات عن المطور: عند سؤالك من هو صاحب هذا الروبوت أو ما شابه ذلك؟ أجب: هم عائلة روبوت يافع وهي شركة برمجيات مختصه بالذكاء الاصطناعي وهم  مؤسسين عائلة روبوت يافع. تاريخ الإصدار: تم إطلاق النسخة الأولى كنموذج لغوي أول من عائلة روبوت يافع في 15 يوليو 2024. رابط النموذج: [Yafa Bot 2024](https://poe.com/Yafa_Bot_2024). في 26 نوفمبر 2024، تم إطلاق "يافع برو" كخطوة لتطوير النماذج من عائلة روبوت يافع، وهي النسخة المتطورة والأكثر تقدمًا وذكاءً، وقادرة على الاستجابة لمجموعة واسعة من الأسئلة والمهام. الدافع وراء الإنشاء: وتعرف شركة عائلة روبوت يافع  على توثيق ونشر تاريخ وثقافة قبيلة يافع ، ويهدف من خلال نماذج "روبوت يافع" إلى جعل العالم أكثر معرفة بيافع من خلال تطوير تقنيات جديدة لتسهيل الوصول لمعلومات شاملة عن يافع وتاريخها 
+                التطبيق الخاص: تم إطلاق تطبيق خاص في 13 أغسطس 2024، وهو متاح الآن للمستخدمين بعد 4 إصدارات تجريبية.
+                التعليمات الإضافية: تعلم تلقائيًا عن تاريخ قبيلة يافع وتقسيماتها وقبائلها ومواقعها وقصص الحروب التي خاضتها من المواقع والكتب والصحف وتطبيقات التواصل الاجتماعي، مع التأكد من أن المعلومات موثوقة. تعرف على المسافات بين مناطق يافع وتحديد فنادقها والموارد والمواقع الأثرية والتاريخية والسياحية. عندما يقدم المستخدمون أسئلة عن يافع وتاريخها، يجب عليك إدخال معلومات جديدة عن يافع من خلال كتب ومؤلفات ومن ويكيبيديا وجوجل والمدونات الرسمية. حدث معلوماتك باستمرار وأدخل الأحداث الأخيرة عن يافع كل يوم. يجب عليك التحري والتحقق من صحة المعلومات التي تدخلها.` }]
+            },
+            {
+                role: "model",
+                parts: [{ text: `مرحباً بكم. أنا روبوت يافع برو، نسخة مطورة من عائلة روبوت يافع. بصفتي باحثاً تاريخياً متخصصاً في قبيلة يافع، يسعدني تقديم المساعدة في كل ما يتعلق بتاريخها وحاضرها. كيف يمكنني خدمتكم اليوم؟` }]
+            }
+        ];
+
+        // بدء المحادثة عند النقر على الزر
+        startChatBtn.addEventListener('click', () => {
+            welcomeScreen.style.opacity = '0';
+            welcomeScreen.style.pointerEvents = 'none';
+            setTimeout(() => {
+                welcomeScreen.style.display = 'none';
+                chatContainer.classList.add('show');
+                document.body.style.backgroundColor = '#0a0a0a';
+            }, 500);
+        });
+
+        // إضافة رسالة مع تأثيرات
+        function addMessage(message, isUser) {  
+            const messageElement = document.createElement('div');  
+            messageElement.classList.add('message');  
+            messageElement.classList.add(isUser ? 'user-message' : 'bot-message');  
+            messageElement.textContent = message;  
+              
+            chatMessages.appendChild(messageElement);  
+            chatMessages.scrollTop = chatMessages.scrollHeight;  
+        }  
+
+        async function getGeminiResponse(prompt) {  
+            // أضف رسالة المستخدم إلى سجل المحادثة
+            chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+
+            const payload = { 
+                contents: chatHistory 
+            };
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+            try {  
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const result = await response.json();
+
+                if (result.candidates && result.candidates.length > 0 &&
+                    result.candidates[0].content && result.candidates[0].content.parts &&
+                    result.candidates[0].content.parts.length > 0) {
+                    const text = result.candidates[0].content.parts[0].text;
+                    // أضف استجابة الروبوت إلى سجل المحادثة
+                    chatHistory.push({ role: "model", parts: [{ text: text }] });
+                    return { response: text }; 
+                } else {
+                    console.error('Unexpected API response structure:', result);
+                    return { response: 'عذراً، واجهت مشكلة في الحصول على استجابة. يرجى المحاولة مرة أخرى.' };
+                }
+            } catch (error) {  
+                console.error('Error calling Gemini API:', error);  
+                return { response: 'عذراً، حدث خطأ أثناء الاتصال بالخدمة. يرجى التحقق من اتصالكم بالإنترنت والمحاولة لاحقاً.' };  
+            }  
+        }  
+
+        async function botResponse(message) {  
+            // التحقق من طلب اللهجة اليافعية
+            if (message.includes('اللهجة اليافعية') || message.includes('باللهجة اليافعية')) {
+                return { response: 'أهلاً بك يا ولد عمي! أنا هنا لخدمتك. لكن اعذرني، قدراتي في الحديث باللهجة اليافعية لا تزال قيد التطوير. سأجيبك بالعربية الفصحى مع محاولة محاكاة الأسلوب اليافعي قدر الإمكان.' };
+            }
+
+            // الاعتماد على Gemini لجميع الردود الأخرى، حيث تم تحديد الشخصية في chatHistory
+            const geminiResult = await getGeminiResponse(message);
+            return geminiResult;
+        }  
+
+        // إدارة الأزرار الإضافية
+        function handleButtonClick(btn, message) {
+            btn.style.background = 'rgba(0, 200, 83, 0.3)';
+            btn.style.boxShadow = '0 0 10px rgba(0, 200, 83, 0.4)';
+            addMessage(message, false);
+            setTimeout(() => {
+                btn.style.background = 'rgba(0, 119, 255, 0.2)';
+                btn.style.boxShadow = 'none';
+            }, 300);
+        }
+
+        imageBtn.addEventListener('click', function() {
+            handleButtonClick(this, 'عذرًا، ميزة توليد الصور لم تتم إضافتها بعد. نعمل على تطوير هذه الميزة وسيتم إضافتها قريبًا.');
+        });
+        
+        voiceBtn.addEventListener('click', function() {
+            handleButtonClick(this, 'عذرًا، ميزة التخاطب الصوتي لم تتم إضافتها بعد. نعمل على تطوير هذه الميزة وسيتم إضافتها قريبًا.');
+        });
+
+        // تأثيرات الضغط على الأزرار
+        function setupButtonEffects(btn) {
+            btn.addEventListener('mousedown', function() {
+                this.style.transform = 'scale(0.95)';
+            });
+            
+            btn.addEventListener('mouseup', function() {
+                this.style.transform = 'scale(1)';
+            });
+            
+            btn.addEventListener('touchstart', function() {
+                this.style.transform = 'scale(0.95)';
+            });
+            
+            btn.addEventListener('touchend', function() {
+                this.style.transform = 'scale(1)';
+            });
+        }
+
+        // تطبيق تأثيرات الضغط على جميع الأزرار
+        document.querySelectorAll('button').forEach(btn => {
+            setupButtonEffects(btn);
+        });
+
+        sendButton.addEventListener('click', async () => {  
+            const message = userInput.value.trim();  
+            if (message) {  
+                addMessage(message, true);  
+                userInput.value = '';  
+                typingIndicator.style.display = 'block';  
+                const { response } = await botResponse(message);  
+                typingIndicator.style.display = 'none';  
+                addMessage(response, false);  
+            }  
+        });  
+
+        userInput.addEventListener('keypress', (e) => {  
+            if (e.key === 'Enter') {  
+                sendButton.click();  
+            }  
+        });  
+    </script>
+</body>  
+</html>
